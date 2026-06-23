@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Мем-Рулетка 🎰</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:    #0f0f13;
+      --card:  #16161e;
+      --imgbg: #0c0c10;
+      --p1:    #7c3aed;
+      --p2:    #a855f7;
+      --p3:    #c084fc;
+      --t1:    #f0f0f0;
+      --t2:    #9ca3af;
+      --t3:    #6b7280;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 80% 40% at 50% 0%,
+          rgba(139,92,246,.08) 0%, transparent 68%);
+      color: var(--t1);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 64px;
+    }
+
+    /* ── Header ── */
+    header { text-align: center; margin-bottom: 32px; }
+
+    .logo {
+      display: block;
+      font-size: 54px;
+      line-height: 1;
+      margin-bottom: 14px;
+      animation: float 3.5s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(-3deg); }
+      50%       { transform: translateY(-8px) rotate(3deg); }
+    }
+
+    header h1 {
+      font-size: clamp(26px, 6vw, 40px);
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      background: linear-gradient(130deg, #e0d7ff 0%, var(--p3) 50%, var(--p2) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    header p { color: var(--t3); font-size: 14px; }
+
+    /* ── Card ── */
+    .card {
+      width: 100%;
+      max-width: 640px;
+      background: var(--card);
+      border-radius: 24px;
+      border: 1px solid rgba(139,92,246,.18);
+      box-shadow:
+        0 0 0 1px rgba(139,92,246,.07),
+        0 24px 64px rgba(0,0,0,.55),
+        0 0 50px rgba(139,92,246,.07);
+      overflow: hidden;
+      margin-bottom: 24px;
+      transition: transform .35s ease, box-shadow .35s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow:
+        0 0 0 1px rgba(139,92,246,.28),
+        0 28px 72px rgba(0,0,0,.6),
+        0 0 70px rgba(139,92,246,.14);
+    }
+
+    /* ── Image area ── */
+    .img-area {
+      position: relative;
+      height: 420px;
+      background: var(--imgbg);
+      overflow: hidden;
+    }
+
+    .meme-img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      opacity: 0;
+    }
+
+    .meme-img.visible {
+      animation: revealMeme .48s cubic-bezier(.22,1,.36,1) forwards;
+    }
+
+    @keyframes revealMeme {
+      from { opacity: 0; filter: blur(12px); transform: scale(.95); }
+      to   { opacity: 1; filter: blur(0px);  transform: scale(1); }
+    }
+
+    /* ── Overlays ── */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: rgba(12,12,16,.9);
+      backdrop-filter: blur(8px);
+      transition: opacity .28s ease;
+    }
+
+    .overlay.gone { opacity: 0; pointer-events: none; }
+
+    /* Spinner ring */
+    .spin-ring {
+      width: 58px;
+      height: 58px;
+      position: relative;
+    }
+
+    .spin-ring::before,
+    .spin-ring::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+    }
+
+    .spin-ring::before {
+      border: 3px solid rgba(139,92,246,.14);
+    }
+
+    .spin-ring::after {
+      border: 3px solid transparent;
+      border-top-color: var(--p2);
+      border-right-color: var(--p3);
+      animation: spin .78s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .ov-label {
+      color: var(--t3);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .err-emoji { font-size: 46px; }
+
+    .err-msg {
+      color: var(--t2);
+      font-size: 14px;
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    /* ── Card footer ── */
+    .card-footer {
+      padding: 18px 22px 20px;
+      border-top: 1px solid rgba(255,255,255,.04);
+    }
+
+    .meme-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--t1);
+      line-height: 1.5;
+      margin-bottom: 12px;
+      min-height: 23px;
+    }
+
+    .meme-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 11px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .pill-sub {
+      background: rgba(139,92,246,.12);
+      border: 1px solid rgba(139,92,246,.3);
+      color: var(--p3);
+    }
+
+    .pill-ups {
+      background: rgba(34,197,94,.08);
+      border: 1px solid rgba(34,197,94,.22);
+      color: #86efac;
+    }
+
+    /* ── Button ── */
+    .btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 17px 50px;
+      font-family: 'Inter', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, var(--p1) 0%, var(--p2) 100%);
+      border: none;
+      border-radius: 100px;
+      cursor: pointer;
+      user-select: none;
+      letter-spacing: .01em;
+      transition: transform .2s ease, box-shadow .2s ease;
+      box-shadow:
+        0 0 28px rgba(139,92,246,.52),
+        0 4px 24px rgba(0,0,0,.42),
+        inset 0 1px 0 rgba(255,255,255,.15);
+      overflow: hidden;
+    }
+
+    /* Shine sweep */
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -80%;
+      width: 55%;
+      height: 200%;
+      background: linear-gradient(105deg, transparent 38%, rgba(255,255,255,.22) 50%, transparent 62%);
+      transition: left .48s ease;
+      pointer-events: none;
+    }
+
+    .btn:hover:not(:disabled)::after  { left: 125%; }
+
+    .btn:hover:not(:disabled) {
+      transform: scale(1.05) translateY(-2px);
+      box-shadow:
+        0 0 45px rgba(139,92,246,.72),
+        0 8px 32px rgba(0,0,0,.5),
+        inset 0 1px 0 rgba(255,255,255,.15);
+    }
+
+    .btn:active:not(:disabled) { transform: scale(.97) translateY(0); }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: .6;
+    }
+
+    /* Button mini-spinner */
+    .btn-ring {
+      width: 18px;
+      height: 18px;
+      border: 2.5px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .65s linear infinite;
+      display: none;
+      flex-shrink: 0;
+    }
+
+    .btn.loading .btn-ring { display: block; }
+    .btn.loading .btn-dice { display: none; }
+
+    /* ── Site footer ── */
+    footer {
+      margin-top: 26px;
+      color: var(--t3);
+      font-size: 12px;
+      text-align: center;
+      line-height: 1.9;
+    }
+
+    footer a { color: rgba(139,92,246,.75); text-decoration: none; }
+    footer a:hover { color: var(--p3); }
+
+    /* ── Responsive ── */
+    @media (max-width: 500px) {
+      body { padding: 28px 14px 48px; }
+      .img-area { height: 300px; }
+      .btn { padding: 15px 36px; font-size: 15px; }
+      .card-footer { padding: 14px 16px 16px; }
+    }
+
+    /* Accessibility: respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .logo { animation: none; }
+      .meme-img.visible { animation: none; opacity: 1; }
+      .btn::after { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="logo">🎰</span>
+  <h1>Мем-Рулетка</h1>
+  <p>Каждое нажатие — новый случайный мем из Reddit</p>
+</header>
+
+<div class="card">
+  <div class="img-area" id="imgArea">
+
+    <!-- Meme image (hidden until loaded) -->
+    <img class="meme-img" id="memeImg" alt="мем" />
+
+    <!-- Loading overlay -->
+    <div class="overlay" id="spinnerOv">
+      <div class="spin-ring"></div>
+      <span class="ov-label">Ищем мем…</span>
+    </div>
+
+    <!-- Error overlay -->
+    <div class="overlay gone" id="errorOv">
+      <span class="err-emoji">😵</span>
+      <p class="err-msg" id="errMsg">Что-то пошло не так<br>Попробуй ещё раз</p>
+    </div>
+
+  </div>
+
+  <div class="card-footer">
+    <div class="meme-title" id="memeTitle">&nbsp;</div>
+    <div class="meme-meta" id="memeMeta" hidden>
+      <span class="pill pill-sub">r/<span id="subName"></span></span>
+      <span class="pill pill-ups">▲ <span id="upsNum"></span></span>
+    </div>
+  </div>
+</div>
+
+<button class="btn loading" id="mainBtn" onclick="loadMeme()">
+  <span class="btn-ring"></span>
+  <span class="btn-dice">🎲</span>
+  <span id="btnLabel">Крутить рулетку</span>
+</button>
+
+<footer>
+  Мемы из Reddit · <a href="https://meme-api.com" target="_blank" rel="noopener">meme-api.com</a>
+</footer>
+
+<script>
+  const API = 'https://meme-api.com/gimme';
+
+  const btn       = document.getElementById('mainBtn');
+  const btnLabel  = document.getElementById('btnLabel');
+  const memeImg   = document.getElementById('memeImg');
+  const memeTitle = document.getElementById('memeTitle');
+  const memeMeta  = document.getElementById('memeMeta');
+  const subName   = document.getElementById('subName');
+  const upsNum    = document.getElementById('upsNum');
+  const spinnerOv = document.getElementById('spinnerOv');
+  const errorOv   = document.getElementById('errorOv');
+  const errMsg    = document.getElementById('errMsg');
+
+  let busy = false;
+
+  /* ── State helpers ── */
+
+  function setLoading(on) {
+    busy = on;
+    btn.disabled = on;
+    btn.classList.toggle('loading', on);
+    btnLabel.textContent = on ? 'Загружаю…' : 'Крутить рулетку';
+
+    if (on) {
+      memeImg.classList.remove('visible');
+      spinnerOv.classList.remove('gone');
+      errorOv.classList.add('gone');
+    }
+  }
+
+  function showError(msg) {
+    spinnerOv.classList.add('gone');
+    errorOv.classList.remove('gone');
+    errMsg.innerHTML = msg;
+
+    // Restore button without full setLoading call
+    busy = false;
+    btn.disabled = false;
+    btn.classList.remove('loading');
+    btnLabel.textContent = 'Крутить рулетку';
+  }
+
+  function fmtNum(n) {
+    if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+    return String(n);
+  }
+
+  /* ── Core logic ── */
+
+  function showMeme(data) {
+    const tmp = new Image();
+
+    tmp.onload = () => {
+      // Paint image
+      memeImg.src = tmp.src;
+
+      // Update metadata
+      memeTitle.textContent = data.title   || 'Без названия';
+      subName.textContent   = data.subreddit || 'memes';
+      upsNum.textContent    = fmtNum(data.ups || 0);
+      memeMeta.hidden = false;
+
+      // Hide overlays
+      spinnerOv.classList.add('gone');
+      errorOv.classList.add('gone');
+
+      // Force reflow so animation fires fresh each time
+      void memeImg.offsetWidth;
+      memeImg.classList.add('visible');
+
+      setLoading(false);
+    };
+
+    tmp.onerror = () => {
+      showError('Не удалось загрузить картинку 🖼<br>Попробуй ещё раз');
+    };
+
+    tmp.src = data.url;
+  }
+
+  async function loadMeme() {
+    if (busy) return;
+    setLoading(true);
+
+    try {
+      const res = await fetch(API);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (!data?.url) throw new Error('No image URL in response');
+      showMeme(data);
+    } catch (e) {
+      console.error('[Мем-Рулетка]', e);
+      showError('Не удалось дотянуться до API 🌐<br>Проверь интернет и попробуй снова');
+    }
+  }
+
+  /* Auto-load first meme */
+  loadMeme();
+</script>
+
+</body>
+</html>
